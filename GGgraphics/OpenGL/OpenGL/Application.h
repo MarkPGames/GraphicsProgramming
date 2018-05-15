@@ -3,8 +3,6 @@
 // forward declared structure for access to GLFW window
 struct GLFWwindow;
 
-
-
 // this is the pure-virtual base class that wraps up an application for us.
 // we derive our own applications from this class
 class Application {
@@ -19,10 +17,10 @@ public:
 	void run(const char* title, int width, int height, bool fullscreen);
 
 	// these functions must be implemented by a derived class
-	bool startup();
-	void shutdown();
-	void update(float deltaTime);
-	void draw();
+	virtual bool startup() = 0;
+	virtual void shutdown() = 0;
+	virtual void update(float deltaTime) = 0;
+	virtual void draw() = 0;
 
 	// wipes the screen clear to begin a frame of drawing
 	void clearScreen();
@@ -55,21 +53,22 @@ public:
 	// returns time since application started
 	float getTime() const;
 
+	float getDeltaTime();
+
+	GLFWwindow* getWindow();
+
 protected:
 
 	virtual bool createWindow(const char* title, int width, int height, bool fullscreen);
 	virtual void destroyWindow();
 
-	GLFWwindow*		m_window;
+	GLFWwindow*		m_window; \
+
+		double m_deltaTime;
 
 	// if set to false, the main game loop will exit
 	bool			m_gameOver;
 
 	unsigned int	m_fps;
-
-	//
-	int m_value;
-	glm::mat4 m_view;
-	glm::mat4 m_projection;
 };
 

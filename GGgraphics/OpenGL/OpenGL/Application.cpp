@@ -1,15 +1,8 @@
 #include "Application.h"
-#include <gl_core_4_4.h>
+#include "gl_core_4_4.h"
 #include <GLFW/glfw3.h>
-#include <aie/Gizmos.h> 
-#include <glm/glm.hpp> 
-#include <glm/ext.hpp> 
+#include <glm/glm.hpp>
 #include <iostream>
-
-using glm::vec3;
-using glm::vec4;
-using glm::mat4;
-using namespace aie;
 
 Application::Application()
 	: m_window(nullptr),
@@ -68,7 +61,7 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 		// variables for timing
 		double prevTime = glfwGetTime();
 		double currTime = 0;
-		double deltaTime = 0;
+		m_deltaTime = 0;
 		unsigned int frames = 0;
 		double fpsInterval = 0;
 
@@ -77,7 +70,7 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 			// update delta time
 			currTime = glfwGetTime();
-			deltaTime = currTime - prevTime;
+			m_deltaTime = currTime - prevTime;
 			prevTime = currTime;
 
 			// update window events (input etc)
@@ -89,14 +82,14 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 			// update fps every second
 			frames++;
-			fpsInterval += deltaTime;
+			fpsInterval += m_deltaTime;
 			if (fpsInterval >= 1.0f) {
 				m_fps = frames;
 				frames = 0;
 				fpsInterval -= 1.0f;
 			}
 
-			update(float(deltaTime));
+			update(float(m_deltaTime));
 
 			draw();
 
@@ -111,75 +104,6 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 	// cleanup
 	shutdown();
 	destroyWindow();
-}
-
-bool Application::startup()
-{
-	Gizmos::create(1000, 1000, 1000, 1000);
-
-	m_view = glm::lookAt(vec3(10, 10, 10), vec3(0), vec3(0, 1, 0));
-	m_projection = glm::perspective(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
-
-	auto major = ogl_GetMajorVersion();
-	auto minor = ogl_GetMinorVersion();
-	printf("GL: %i.%i\n", major, minor);
-
-	glClearColor(0.5f, 1.0f, 1.0f, 1);
-	glEnable(GL_DEPTH_TEST); // enables the depth buffer
-
-	m_value = 0;
-	return true;
-}
-
-void Application::shutdown()
-{
-
-}
-
-void Application::update(float deltaTime)
-{
-	//wipe back buffer			clear the dist to closest pixels
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// game logice and update
-
-	if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		m_value += 2;
-		m_view = glm::lookAt(vec3(10, 1, 1), vec3(0), vec3(0, 1, 0));
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		m_value -= 2;
-		m_view = glm::lookAt(vec3(m_value, m_value, m_value), vec3(0), vec3(0, 1, 0));
-	}
-
-	
-	glfwPollEvents();
-}
-
-void Application::draw()
-{
-	//render code
-
-	//Gizmo Rendering
-	Gizmos::clear();
-
-	Gizmos::addTransform(glm::mat4(1));
-
-	vec4 white(1);
-	vec4 black(0, 0, 0, 1);
-
-	for (int i = 0; i < 21; i++)
-	{
-		Gizmos::addLine(vec3(-10 + i, 0, 10), vec3(-10 + i, 0, -10), i == 10 ? white : black);
-
-		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i), i == 10 ? white : black);
-	}
-
-	Gizmos::draw(m_projection * m_view);
-
-	glfwSwapBuffers(m_window);
 }
 
 bool Application::hasWindowClosed() {
@@ -216,4 +140,14 @@ unsigned int Application::getWindowHeight() const {
 
 float Application::getTime() const {
 	return (float)glfwGetTime();
+}
+
+float Application::getDeltaTime()
+{
+	return m_deltaTime;
+}
+
+GLFWwindow* Application::getWindow()
+{
+	return m_window;
 }
