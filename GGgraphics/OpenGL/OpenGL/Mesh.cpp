@@ -20,6 +20,16 @@ void Mesh::initialiseQuad()
 	vertices[3].position = { 0.5f, 0, -0.5f, 1 };
 	unsigned int indices[6] = { 0, 1, 2, 2, 1, 3 };
 
+	vertices[0].texCoord = { 0, 1 }; // bottom left
+	vertices[1].texCoord = { 1, 1 }; // bottom right
+	vertices[2].texCoord = { 0, 0 }; // top left
+	vertices[3].texCoord = { 1, 0 }; // top right
+
+	vertices[0].normal = { 0, 1, 0, 0 }; 
+	vertices[1].normal = { 0, 1, 0, 0 }; 
+	vertices[2].normal = { 0, 1, 0, 0 }; 
+	vertices[3].normal = { 0, 1, 0, 0 };
+
 	initialise(4, vertices, 6, indices);
 }
 
@@ -43,7 +53,17 @@ void Mesh::initialise(unsigned int vertexCount, const Vertex * vertices, unsigne
 
 	//enable first element as position
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+
+	//enable second element as normal
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)16);
+
+	// enable third element as texture
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)32);
+
+
 	// bind indices if there are any
 	if (indexCount != 0) 
 	{
@@ -61,7 +81,8 @@ void Mesh::initialise(unsigned int vertexCount, const Vertex * vertices, unsigne
 	// unbind buffers
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	//// define 6 vertices for 2 triangles
 	//Mesh::Vertex verts[6];
 	//verts[0].position = { -0.5f, 0, 0.5f, 1 };
@@ -70,7 +91,8 @@ void Mesh::initialise(unsigned int vertexCount, const Vertex * vertices, unsigne
 	//verts[3].position = { -0.5f, 0, -0.5f, 1 };
 	//verts[4].position = { 0.5f, 0, 0.5f, 1 };
 	//verts[5].position = { 0.5f, 0, -0.5f, 1 };
-	//m_quadMesh.initialise(6, vertices);
+	//m_quadMesh.initialise(6, vertices);
+
 }
 
 void Mesh::draw()

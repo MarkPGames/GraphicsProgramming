@@ -24,25 +24,56 @@ GraphicsApp::~GraphicsApp()
 
 bool GraphicsApp::startup()
 {
+	setBackgroundColour(0.25f, 0.25f, 0.25f, 1.0f);
+
 	Gizmos::create(10000, 10000, 10000, 10000);
+
+	m_light.diffuse = {1, 1, 0};
+	m_light.specular = {1, 1, 0};
+	m_ambientLight = {0.25f, 0.25f, 0.25f};
 
 	projection = glm::perspective(glm::pi<float>() * 0.25f, (float)getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.f);
 	m_camera.setProjectionMatrix(projection);
 
 	//load vertex shader from file
-	m_shader.loadShader(aie::eShaderStage::VERTEX, "../OpenGL/shaders/simple.vert");
+	m_shader.loadShader(aie::eShaderStage::VERTEX,  "./shaders/simple.vert");
+	m_texturedShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/textured.vert");
+	m_phongShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/phong.vert");
 	//load fragment shader from file
-	m_shader.loadShader(aie::eShaderStage::FRAGMENT, "../OpenGL/shaders/simple.frag");
+	m_shader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
+	m_texturedShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/textured.frag");
+	m_phongShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/phong.frag");
+
 	if (m_shader.link() == false)
 	{
 		printf("Shader Error: %s\n", m_shader.getLastError());
+		system("pause");
+		return false;
+	}
+	if (m_texturedShader.link() == false)
+	{
+		printf("Textured Shader Error: %s\n", m_shader.getLastError());
+		system("pause");
+		return false;
+	}
+	if (m_phongShader.link() == false)
+	{
+		printf("Phong Shader Error: %s\n", m_shader.getLastError());
+		system("pause");
+		return false;
+	}
+	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
+	{
+		printf("Failed to load texture!\n");
+		system("pause");
 		return false;
 	}
 
-	m_quadMesh.initialiseQuad();
+	m_quadMesh.initialiseQuad();
 
 	//make the quad 10 units wide
-	m_quadTransform = {
+	m_quadTransform = 
+	{
 	10, 0, 0, 0,
 	0,10,0,0,
 	0,0,10,0,
@@ -56,6 +87,37 @@ bool GraphicsApp::startup()
 	valueY = 10;
 	valueX = 10;
 
+
+	if (m_bunnyMesh.load("./models/stanford/bunny.obj") == false)
+	{
+		printf("Bunny Mesh Error!\n");
+		system("pause");
+		return false;
+	}
+
+	m_bunnyTransform = 
+	{
+	0.5f, 0, 0, 0,
+	0, 0.5f, 0, 0,
+	0, 0, 0.5f, 0,
+	0, 0, 0, 1
+	};
+
+	if (m_soulSpearMesh.load("./models/soulspear/soulspear.obj", true, true) == false)
+	{
+	printf("Soulspear Mesh Error!\n");
+	system("pause");
+	return false;
+	}
+
+	m_soulSpearTransform =
+	{
+	1,0,0,0,
+	0,1,0,0,
+	0,0,1,0,
+	0,0,0,1
+	};
+
 	return true;
 }
 
@@ -67,6 +129,10 @@ void GraphicsApp::shutdown()
 
 void GraphicsApp::update(float deltaTime)
 {
+	// query time since application started
+	float time = getTime();
+	// rotate light
+	m_light.direction = glm::normalize(vec3(glm::cos(time * 2),glm::sin(time * 2), 0));
 
 	m_camera.update(getWindow(), deltaTime);
 	
@@ -81,24 +147,61 @@ void GraphicsApp::draw()
 {
 	clearScreen();
 
-	setBackgroundColour(0.0f, 0.0f, 0.0f, 1.0f);
-
-	//bind shader
-	m_shader.bind();
-
-	//bind transform
+//
+//	m_texturedShader.bind();
+//
+//	//bind transform
 	auto pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_quadTransform;
-	m_shader.bindUniform("ProjectionViewModel", pvm);
+//	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	//bind texture location
+//	m_texturedShader.bindUniform("diffuseTexture", 0);
+//
+//	//bind texture to specified location
+//	//m_gridTexture.bind(0);
+//
+//	m_soulSpearTexture.bind(0);
+//
+//	//bind new transform
+//	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_soulSpearTransform;
+//	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
+//
+//	m_soulSpearMesh.draw();
 
-	//draw quad
-	m_quadMesh.draw();
+
+	m_phongShader.bind();
+
+	// bind light 
+	m_phongShader.bindUniform("cameraPosition", m_camera.getPosition());
+	m_phongShader.bindUniform("AmbientColour", m_ambientLight);
+	m_phongShader.bindUniform("DiffuseColour", m_light.diffuse);
+	m_phongShader.bindUniform("SpecularColour", m_light.specular);
+	m_phongShader.bindUniform("LightDirection", m_light.direction);
+
+	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_soulSpearTransform;
+	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+
+	// bind transforms for lighting
+	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_soulSpearTransform)));
+	m_phongShader.bindUniform("ModelMatrix", m_soulSpearTransform);
+	m_soulSpearMesh.draw();
+
+	//m_quadMesh.draw();
+
+
+	//bind new transform
+	//pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_bunnyTransform;
+	//m_shader.bindUniform("ProjectionViewModel", pvm);
+
+	//draw model
+	//m_bunnyMesh.draw();
 
 	Gizmos::clear();
 
 	Gizmos::addTransform(glm::mat4(1), 10.0f);
 
 	vec4 white(1);
-	vec4 black(0, 0, 0.5, 1);
+	vec4 black(0, 0, 0, 1);
 	vec4 yellow(1, 1, 0, 1);
 
 	for (int i = 0; i < 21; i++)
@@ -108,7 +211,7 @@ void GraphicsApp::draw()
 		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i), i == 10 ? white : black);
 	}
 
-	Gizmos::addSphere(vec3(0), 3, 8, 8, yellow);
+	//Gizmos::addSphere(vec3(0), 3, 8, 8, yellow);
 
 	Gizmos::draw(m_camera.getProjectionMatrix() * m_camera.getViewMatrix());
 
