@@ -47,7 +47,7 @@ private:
 	};
 
 	Light m_light;
-	glm::vec3 m_ambientLight;
+	glm::vec3 m_ambientLightColour;
 
 };
 

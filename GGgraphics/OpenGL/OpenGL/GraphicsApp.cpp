@@ -30,7 +30,7 @@ bool GraphicsApp::startup()
 
 	m_light.diffuse = {1, 1, 0};
 	m_light.specular = {1, 1, 0};
-	m_ambientLight = {0.25f, 0.25f, 0.25f};
+	m_ambientLightColour = {0.25f, 0.25f, 0.25f};
 
 	projection = glm::perspective(glm::pi<float>() * 0.25f, (float)getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.f);
 	m_camera.setProjectionMatrix(projection);
@@ -136,7 +136,6 @@ void GraphicsApp::update(float deltaTime)
 
 	m_camera.update(getWindow(), deltaTime);
 	
-
 	if (glfwGetKey(getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		quit();
@@ -147,33 +146,13 @@ void GraphicsApp::draw()
 {
 	clearScreen();
 
-//
-//	m_texturedShader.bind();
-//
-//	//bind transform
 	auto pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_quadTransform;
-//	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
-//
-//	//bind texture location
-//	m_texturedShader.bindUniform("diffuseTexture", 0);
-//
-//	//bind texture to specified location
-//	//m_gridTexture.bind(0);
-//
-//	m_soulSpearTexture.bind(0);
-//
-//	//bind new transform
-//	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_soulSpearTransform;
-//	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
-//
-//	m_soulSpearMesh.draw();
-
 
 	m_phongShader.bind();
 
 	// bind light 
 	m_phongShader.bindUniform("cameraPosition", m_camera.getPosition());
-	m_phongShader.bindUniform("AmbientColour", m_ambientLight);
+	m_phongShader.bindUniform("AmbientColour", m_ambientLightColour);
 	m_phongShader.bindUniform("DiffuseColour", m_light.diffuse);
 	m_phongShader.bindUniform("SpecularColour", m_light.specular);
 	m_phongShader.bindUniform("LightDirection", m_light.direction);
@@ -184,17 +163,11 @@ void GraphicsApp::draw()
 	// bind transforms for lighting
 	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_soulSpearTransform)));
 	m_phongShader.bindUniform("ModelMatrix", m_soulSpearTransform);
+
+	//bind texture to specified location
+	m_soulSpearTexture.bind(0);
+
 	m_soulSpearMesh.draw();
-
-	//m_quadMesh.draw();
-
-
-	//bind new transform
-	//pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_bunnyTransform;
-	//m_shader.bindUniform("ProjectionViewModel", pvm);
-
-	//draw model
-	//m_bunnyMesh.draw();
 
 	Gizmos::clear();
 
