@@ -88,18 +88,18 @@ bool GraphicsApp::startup()
 	valueX = 10;
 
 
-	if (m_bunnyMesh.load("./models/stanford/bunny.obj") == false)
+	if (m_dragonMesh.load("./models/stanford/Dragon.obj", true, true) == false)
 	{
-		printf("Bunny Mesh Error!\n");
+		printf("Dragon Mesh Error!\n");
 		system("pause");
 		return false;
 	}
 
-	m_bunnyTransform = 
+	m_dragonTransform = 
 	{
-	0.5f, 0, 0, 0,
-	0, 0.5f, 0, 0,
-	0, 0, 0.5f, 0,
+	1, 0, 0, 0,
+	0, 1, 0, 0,
+	0, 0, 1, 0,
 	0, 0, 0, 1
 	};
 
@@ -168,6 +168,11 @@ void GraphicsApp::draw()
 	m_soulSpearTexture.bind(0);
 
 	m_soulSpearMesh.draw();
+
+	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_dragonTransform;
+	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+
+	m_dragonMesh.draw();
 
 	Gizmos::clear();
 

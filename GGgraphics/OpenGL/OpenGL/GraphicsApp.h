@@ -32,8 +32,8 @@ private:
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
 
-	aie::OBJMesh m_bunnyMesh;
-	glm::mat4 m_bunnyTransform;
+	aie::OBJMesh m_dragonMesh;
+	glm::mat4 m_dragonTransform;
 
 	aie::Texture m_soulSpearTexture;
 	aie::OBJMesh m_soulSpearMesh;
