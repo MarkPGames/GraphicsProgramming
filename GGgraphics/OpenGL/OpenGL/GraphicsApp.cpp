@@ -5,7 +5,9 @@
 //#include <glm/glm.hpp>
 #include <glm/ext.hpp> 
 #include <iostream>
-
+#include <imgui.h>
+#include <aie/Input.h>
+#include "imgui_glfw3.h"
 
 using glm::vec3;
 using glm::vec4;
@@ -28,37 +30,23 @@ bool GraphicsApp::startup()
 
 	Gizmos::create(10000, 10000, 10000, 10000);
 
-	m_light.diffuse = {1, 1, 0};
-	m_light.specular = {1, 1, 0};
+	m_light.direction = { 0,-1,0 };
+	m_light.diffuse = {1, 1, 0.8f};
+	m_light.specular = {1, 1, 0.8f };
 	m_ambientLightColour = {0.25f, 0.25f, 0.25f};
+	lightDir = 3.8f;
 
 	projection = glm::perspective(glm::pi<float>() * 0.25f, (float)getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.f);
 	m_camera.setProjectionMatrix(projection);
 
 	//load vertex shader from file
-	m_shader.loadShader(aie::eShaderStage::VERTEX,  "./shaders/simple.vert");
-	m_texturedShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/textured.vert");
 	m_phongShader.loadShader(aie::eShaderStage::VERTEX, "./shaders/phong.vert");
 	//load fragment shader from file
-	m_shader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simple.frag");
-	m_texturedShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/textured.frag");
 	m_phongShader.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/phong.frag");
 
-	if (m_shader.link() == false)
-	{
-		printf("Shader Error: %s\n", m_shader.getLastError());
-		system("pause");
-		return false;
-	}
-	if (m_texturedShader.link() == false)
-	{
-		printf("Textured Shader Error: %s\n", m_shader.getLastError());
-		system("pause");
-		return false;
-	}
 	if (m_phongShader.link() == false)
 	{
-		printf("Phong Shader Error: %s\n", m_shader.getLastError());
+		printf("Phong Shader Error: %s\n", m_phongShader.getLastError());
 		system("pause");
 		return false;
 	}
@@ -88,7 +76,7 @@ bool GraphicsApp::startup()
 	valueX = 10;
 
 
-	if (m_dragonMesh.load("./models/stanford/Dragon.obj", true, true) == false)
+	if (m_dragonMesh.load("./models/palmtrees/palm_tree.obj", true, true) == false)
 	{
 		printf("Dragon Mesh Error!\n");
 		system("pause");
@@ -97,10 +85,10 @@ bool GraphicsApp::startup()
 
 	m_dragonTransform = 
 	{
-	1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, 1, 0,
-	0, 0, 0, 1
+	0.01f, 0, 0, 0,
+	0, 0.01f, 0, 0,
+	0, 0, 0.01f, 0,
+	-2.5, 0, 0, 1
 	};
 
 	if (m_soulSpearMesh.load("./models/soulspear/soulspear.obj", true, true) == false)
@@ -115,38 +103,47 @@ bool GraphicsApp::startup()
 	1,0,0,0,
 	0,1,0,0,
 	0,0,1,0,
-	0,0,0,1
+	2.5,0,0,1
 	};
+
+	Input::create();
+
+	ImGui_Init(m_window, true);
 
 	return true;
 }
 
 void GraphicsApp::shutdown()
 {
+	Input::destroy();
 	aie::Gizmos::destroy();
+	ImGui_Shutdown();
 	destroyWindow();
 }
 
 void GraphicsApp::update(float deltaTime)
 {
+	ImGui_NewFrame();
+
 	// query time since application started
 	float time = getTime();
 	// rotate light
-	m_light.direction = glm::normalize(vec3(glm::cos(time * 2),glm::sin(time * 2), 0));
-
+	m_light.direction = glm::normalize(vec3(glm::cos(lightDir),glm::sin(lightDir), 0));
+	
 	m_camera.update(getWindow(), deltaTime);
 	
 	if (glfwGetKey(getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		quit();
 	}
+
 }
 
 void GraphicsApp::draw()
 {
 	clearScreen();
 
-	auto pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_quadTransform;
+	auto pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() *  m_soulSpearTransform;
 
 	m_phongShader.bind();
 
@@ -164,13 +161,16 @@ void GraphicsApp::draw()
 	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_soulSpearTransform)));
 	m_phongShader.bindUniform("ModelMatrix", m_soulSpearTransform);
 
-	//bind texture to specified location
-	m_soulSpearTexture.bind(0);
 
 	m_soulSpearMesh.draw();
 
+
 	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_dragonTransform;
 	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+
+	// bind transforms for lighting
+	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_dragonTransform)));
+	m_phongShader.bindUniform("ModelMatrix", m_dragonTransform);
 
 	m_dragonMesh.draw();
 
@@ -193,5 +193,17 @@ void GraphicsApp::draw()
 
 	Gizmos::draw(m_camera.getProjectionMatrix() * m_camera.getViewMatrix());
 
+	ImGui();
+}
+
+void GraphicsApp::ImGui()
+{
+	ImGui::Begin("Editor");
+
+	ImGui::SliderFloat("Light Direction", &lightDir, 0, glm::pi<float>() * 2);
+	
+	ImGui::End();
+
+	ImGui::Render();
 
 }

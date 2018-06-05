@@ -17,6 +17,7 @@ public:
 
 	virtual void update(float deltaTime);
 	virtual void draw();
+	void ImGui();
 private:
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -48,6 +49,7 @@ private:
 
 	Light m_light;
 	glm::vec3 m_ambientLightColour;
+	float lightDir;
 
 };
 

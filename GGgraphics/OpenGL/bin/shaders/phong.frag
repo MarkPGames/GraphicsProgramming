@@ -58,6 +58,6 @@ void main()
 	vec3 specular = SpecularColour * Ks * texSpecular * specularTerm;
 	
 	//output final colour
-	FragColour = vec4(ambient + diffuse + specular, 1);
-
+	FragColour = vec4(ambient + diffuse + specular, texture(diffuseTexture, vTexCoord).a);
 }
+

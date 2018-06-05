@@ -37,9 +37,10 @@ bool Application::createWindow(const char* title, int width, int height, bool fu
 	glClearColor(0, 0, 0, 1);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	return true;
