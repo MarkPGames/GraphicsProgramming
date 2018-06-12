@@ -161,7 +161,8 @@ void GraphicsApp::draw()
 	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_soulSpearTransform)));
 	m_phongShader.bindUniform("ModelMatrix", m_soulSpearTransform);
 
-
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 	m_soulSpearMesh.draw();
 
 
@@ -172,6 +173,9 @@ void GraphicsApp::draw()
 	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_dragonTransform)));
 	m_phongShader.bindUniform("ModelMatrix", m_dragonTransform);
 
+
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
 	m_dragonMesh.draw();
 
 	Gizmos::clear();
@@ -181,16 +185,16 @@ void GraphicsApp::draw()
 	vec4 white(1);
 	vec4 black(0, 0, 0, 1);
 	vec4 yellow(1, 1, 0, 1);
-
 	for (int i = 0; i < 21; i++)
 	{
-		Gizmos::addLine(vec3(-10 + i, 0, 10), vec3(-10 + i, 0, -10), i == 10 ? white : black);
+		Gizmos::addLine(vec3(-10 + i, gizY, 10), vec3(-10 + i, 0, -10), i == 10 ? white : black);
 
-		Gizmos::addLine(vec3(10, 0, -10 + i), vec3(-10, 0, -10 + i), i == 10 ? white : black);
+		Gizmos::addLine(vec3(10, gizY, -10 + i), vec3(-10, 0, -10 + i), i == 10 ? white : black);
 	}
 
 	//Gizmos::addSphere(vec3(0), 3, 8, 8, yellow);
 
+	glEnable(GL_DEPTH_TEST);
 	Gizmos::draw(m_camera.getProjectionMatrix() * m_camera.getViewMatrix());
 
 	ImGui();
@@ -201,6 +205,7 @@ void GraphicsApp::ImGui()
 	ImGui::Begin("Editor");
 
 	ImGui::SliderFloat("Light Direction", &lightDir, 0, glm::pi<float>() * 2);
+	ImGui::SliderFloat("y level", &gizY, -1, 1);
 	
 	ImGui::End();
 

@@ -51,5 +51,7 @@ private:
 	glm::vec3 m_ambientLightColour;
 	float lightDir;
 
+	float gizY ;
+
 };
 
