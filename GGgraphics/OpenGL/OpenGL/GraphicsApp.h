@@ -40,16 +40,37 @@ private:
 	aie::OBJMesh m_soulSpearMesh;
 	glm::mat4 m_soulSpearTransform;
 
-	struct Light
+	struct DirLight
 	{
 		glm::vec3 direction;
+		glm::vec3 ambient;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 	};
-
-	Light m_light;
-	glm::vec3 m_ambientLightColour;
+	DirLight m_dirLight;
 	float lightDir;
+
+	struct PointLight 
+	{
+		glm::vec3 position;
+
+		float constant;	
+		float linear;
+		float quadratic;
+
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+	};
+	PointLight m_pointLights[4];
+
+	glm::vec3 pointLightPositions[4] = 
+	{ 
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
 
 	float gizY ;
 

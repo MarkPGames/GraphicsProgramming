@@ -14,6 +14,11 @@ glm::vec4 Camera::getPosition() const
 	return m_worldTransform[3];
 }
 
+void Camera::resetPosition()
+{
+	m_worldTransform = glm::mat4(1);
+}
+
 void Camera::translate(glm::vec4 positionModifier)
 {
 	m_worldTransform[3] += positionModifier;

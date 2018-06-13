@@ -11,6 +11,7 @@ public:
 
 	void setPosition(glm::vec4 position);
 	glm::vec4 getPosition() const;
+	void resetPosition();
 	void translate(glm::vec4 positionModifier);
 
 	const glm::mat4& getTransform() const { return m_worldTransform; };

@@ -30,12 +30,16 @@ bool GraphicsApp::startup()
 
 	Gizmos::create(10000, 10000, 10000, 10000);
 
-	m_light.direction = { 0,-1,0 };
-	m_light.diffuse = {1, 1, 0.8f};
-	m_light.specular = {1, 1, 0.8f };
-	m_ambientLightColour = {0.25f, 0.25f, 0.25f};
+	m_dirLight.direction = { 0,-1,0 };
+	m_dirLight.diffuse = {1, 1, 0.8f};
+	m_dirLight.specular = {1, 1, 0.8f };
+	m_dirLight.ambient = {0.25f, 0.25f, 0.25f};
 	lightDir = 3.8f;
 
+	m_pointLights[0].diffuse = { 1, 1, 0.8f };
+	m_pointLights[0].specular = { 1, 1, 0.8f };
+	m_pointLights[0].ambient = { 0.25f, 0.25f, 0.25f };
+	
 	projection = glm::perspective(glm::pi<float>() * 0.25f, (float)getWindowWidth() / (float)getWindowHeight(), 0.1f, 1000.f);
 	m_camera.setProjectionMatrix(projection);
 
@@ -128,10 +132,15 @@ void GraphicsApp::update(float deltaTime)
 	// query time since application started
 	float time = getTime();
 	// rotate light
-	m_light.direction = glm::normalize(vec3(glm::cos(lightDir),glm::sin(lightDir), 0));
+	m_dirLight.direction = glm::normalize(vec3(glm::cos(lightDir),glm::sin(lightDir), 0));
 	
 	m_camera.update(getWindow(), deltaTime);
 	
+	if (glfwGetKey(getWindow(), GLFW_KEY_ENTER) == GLFW_PRESS)
+	{
+		m_camera.resetPosition();
+	}
+
 	if (glfwGetKey(getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		quit();
@@ -147,12 +156,21 @@ void GraphicsApp::draw()
 
 	m_phongShader.bind();
 
-	// bind light 
+	// bind directional light
 	m_phongShader.bindUniform("cameraPosition", m_camera.getPosition());
-	m_phongShader.bindUniform("AmbientColour", m_ambientLightColour);
-	m_phongShader.bindUniform("DiffuseColour", m_light.diffuse);
-	m_phongShader.bindUniform("SpecularColour", m_light.specular);
-	m_phongShader.bindUniform("LightDirection", m_light.direction);
+	m_phongShader.bindUniform("dirLight.ambient", m_dirLight.ambient);
+	m_phongShader.bindUniform("dirLight.diffuse", m_dirLight.diffuse);
+	m_phongShader.bindUniform("dirLight.specular", m_dirLight.specular);
+	m_phongShader.bindUniform("dirLight.direction", m_dirLight.direction);
+
+	//bind point lights
+	m_phongShader.bindUniform("pointLights[0].constant", 1.0f);
+	m_phongShader.bindUniform("pointLights[0].linear", 1.0f);
+	m_phongShader.bindUniform("pointLights[0].quadratic", 1.0f);
+	m_phongShader.bindUniform("pointLights[0].position", pointLightPositions[0]);
+	m_phongShader.bindUniform("pointLights[0].diffuse", m_pointLights[0].diffuse);
+	m_phongShader.bindUniform("pointLights[0].specular", m_pointLights[0].specular);
+	m_phongShader.bindUniform("pointLights[0].ambient", m_pointLights[0].ambient);
 
 	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_soulSpearTransform;
 	m_phongShader.bindUniform("ProjectionViewModel", pvm);
@@ -164,7 +182,6 @@ void GraphicsApp::draw()
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	m_soulSpearMesh.draw();
-
 
 	pvm = m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_dragonTransform;
 	m_phongShader.bindUniform("ProjectionViewModel", pvm);
@@ -193,6 +210,7 @@ void GraphicsApp::draw()
 	}
 
 	//Gizmos::addSphere(vec3(0), 3, 8, 8, yellow);
+	Gizmos::addAABBFilled(pointLightPositions[0], glm::vec3(0.1, 0.1, 0.1), black);
 
 	glEnable(GL_DEPTH_TEST);
 	Gizmos::draw(m_camera.getProjectionMatrix() * m_camera.getViewMatrix());
@@ -205,6 +223,10 @@ void GraphicsApp::ImGui()
 	ImGui::Begin("Editor");
 
 	ImGui::SliderFloat("Light Direction", &lightDir, 0, glm::pi<float>() * 2);
+	ImGui::SliderFloat("x: ", &pointLightPositions[0].x, -10, 25);
+	ImGui::SliderFloat("y: ", &pointLightPositions[0].y, -10, 25);
+	ImGui::SliderFloat("z: ", &pointLightPositions[0].z, -10, 25);
+
 	ImGui::SliderFloat("y level", &gizY, -1, 1);
 	
 	ImGui::End();
