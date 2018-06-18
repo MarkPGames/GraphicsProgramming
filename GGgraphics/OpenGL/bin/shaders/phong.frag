@@ -33,7 +33,8 @@ struct PointLight {
     
     float constant;
     float linear;
-    float quadratic;  
+    float quadratic; 
+	float intensity;
 
     vec3 ambient;
     vec3 diffuse;
@@ -50,7 +51,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	vec3 lightDir = normalize(light.direction);
 	
 	// calculate lambert term (negate light direction)
-	float lambertTerm = max( 0, min( 1, dot( normal, -lightDir ) ));
+	float lambertTerm = max( 0, min( 1, dot( normal, lightDir ) ));
 	
 	vec3 texDiffuse = texture(diffuseTexture, vTexCoord).rgb;
 	vec3 texSpecular = texture(specularTexture, vTexCoord).rgb;
@@ -83,7 +84,7 @@ vec3 lightDir = normalize(fragPos - light.position);
 	float specularTerm = pow(max(0, dot(R, viewDir) ), specularPower);
 	//attenuation
 	float dist = length(light.position - fragPos);
-	float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+	float attenuation = (1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist))) * light.intensity;
 	
 	//combine results
 	vec3 ambient = light.ambient * Ka;

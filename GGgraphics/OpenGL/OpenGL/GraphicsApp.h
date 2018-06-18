@@ -49,6 +49,7 @@ private:
 	};
 	DirLight m_dirLight;
 	float lightDir;
+	glm::vec3 lightDirection;
 
 	struct PointLight 
 	{
@@ -57,6 +58,7 @@ private:
 		float constant;	
 		float linear;
 		float quadratic;
+		float intensity;
 
 		glm::vec3 ambient;
 		glm::vec3 diffuse;
@@ -66,7 +68,7 @@ private:
 
 	glm::vec3 pointLightPositions[4] = 
 	{ 
-		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.5f,  2.0f,  1.0f),
 		glm::vec3(2.3f, -3.3f, -4.0f),
 		glm::vec3(-4.0f,  2.0f, -12.0f),
 		glm::vec3(0.0f,  0.0f, -3.0f)
