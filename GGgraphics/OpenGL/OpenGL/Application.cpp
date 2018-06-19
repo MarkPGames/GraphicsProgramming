@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <aie/Input.h>
 
 Application::Application()
 	: m_window(nullptr),
@@ -43,11 +44,15 @@ bool Application::createWindow(const char* title, int width, int height, bool fu
 	glEnable(GL_ALPHA);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// start input manager
+	aie::Input::create();
+
 	return true;
 }
 
 void Application::destroyWindow() 
 {
+	aie::Input::destroy();
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
@@ -73,6 +78,9 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 			currTime = glfwGetTime();
 			m_deltaTime = currTime - prevTime;
 			prevTime = currTime;
+
+			// clear input
+			aie::Input::getInstance()->clearStatus();
 
 			// update window events (input etc)
 			glfwPollEvents();

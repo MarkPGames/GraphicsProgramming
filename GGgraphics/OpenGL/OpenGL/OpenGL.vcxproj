@@ -176,9 +176,11 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GraphicsApp.h" />
     <ClInclude Include="imgui_glfw3.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="OrbitCamera.h" />
     <ClInclude Include="Planet.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

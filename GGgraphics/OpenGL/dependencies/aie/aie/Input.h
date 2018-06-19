@@ -185,23 +185,18 @@ public:
 	void attachMouseMoveObserver(const MouseMoveCallback& callback) { m_mouseMoveCallbacks.push_back(callback); }
 	void attachMouseScrollObserver(const MouseScrollCallback& callback) { m_mouseScrollCallbacks.push_back(callback); }
 
-protected:
-
-	// just giving the Application class access to the Input singleton
-	friend class GraphicsApp;
-
-	// singleton pointer
-	static Input* m_instance;
-
+	//proctecteed:
 	// only want the Application class to be able to create / destroy
 	static void create()			{ m_instance = new Input(); }
 	static void destroy()			{ delete m_instance; }
-
 	// should be called once by the application each frame after the current update
 	// or before glfwPollEvents
 	void clearStatus();
 
 private:
+
+	// singleton pointer
+	static Input* m_instance;
 
 	// constructor private for singleton
 	Input();

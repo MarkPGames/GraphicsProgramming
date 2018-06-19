@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <aie/Input.h>
 
 struct GLFWwindow;
 
@@ -19,11 +20,12 @@ public:
 
 	glm::mat4 getViewMatrix() const { return glm::inverse(m_worldTransform); };
 	const glm::mat4& getProjectionMatrix() const;
+
 	void setProjectionMatrix(glm::mat4 projectionMatrix);
 
 	void lookAt(glm::vec4 focusPoint, glm::vec3 up = { 0,1,0 });
 
-	virtual void update(GLFWwindow* window, float deltaTime) {};
+	virtual void update(GLFWwindow* window, aie::Input* input, float deltaTime) {};
 
 private:
 	glm::mat4 m_worldTransform = glm::mat4(1);

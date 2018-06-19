@@ -5,6 +5,7 @@
 #include <aie/Shader.h>
 #include <aie/OBJMesh.h>
 #include "Mesh.h"
+#include "PointLight.h"
 
 class GraphicsApp : public Application
 {
@@ -25,6 +26,8 @@ private:
 	float valueY;
 	FirstPersonCamera m_camera;
 
+	aie::Input* input;
+
 	aie::ShaderProgram m_shader;
 	aie::ShaderProgram m_texturedShader;
 	aie::ShaderProgram m_phongShader;
@@ -40,39 +43,10 @@ private:
 	aie::OBJMesh m_soulSpearMesh;
 	glm::mat4 m_soulSpearTransform;
 
-	struct DirLight
-	{
-		glm::vec3 direction;
-		glm::vec3 ambient;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
-	};
-	DirLight m_dirLight;
+	Light m_dirLight;
 	float lightDir;
-	glm::vec3 lightDirection;
 
-	struct PointLight 
-	{
-		glm::vec3 position;
-
-		float constant;	
-		float linear;
-		float quadratic;
-		float intensity;
-
-		glm::vec3 ambient;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
-	};
-	PointLight m_pointLights[4];
-
-	glm::vec3 pointLightPositions[4] = 
-	{ 
-		glm::vec3(2.5f,  2.0f,  1.0f),
-		glm::vec3(2.3f, -3.3f, -4.0f),
-		glm::vec3(-4.0f,  2.0f, -12.0f),
-		glm::vec3(0.0f,  0.0f, -3.0f)
-	};
+	std::vector<PointLight> m_pointLights;
 
 	float gizY ;
 
