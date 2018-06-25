@@ -16,7 +16,7 @@ glm::vec4 Camera::getPosition() const
 
 void Camera::resetPosition()
 {
-	m_worldTransform = glm::mat4(1);
+	m_worldTransform[3] = {0, 2, 10, 1};
 }
 
 void Camera::translate(glm::vec4 positionModifier)

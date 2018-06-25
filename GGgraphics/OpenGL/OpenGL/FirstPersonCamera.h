@@ -4,6 +4,7 @@
 class FirstPersonCamera : public Camera
 {
 public:
+	FirstPersonCamera();
 	~FirstPersonCamera();
 
 	void update(GLFWwindow* window, aie::Input* input, float deltaTime ) override;
@@ -23,5 +24,7 @@ public:
 private:
 	float m_moveSpeed = 10.0f;
 	float m_rotationSpeed = glm::pi<float>() * 0.25f;
+	int windowWidth;
+	int windowHeight;
 };
 

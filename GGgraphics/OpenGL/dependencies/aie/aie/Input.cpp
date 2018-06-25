@@ -70,6 +70,7 @@ Input::Input() {
 }
 
 Input::~Input() {
+
 	delete[] m_lastKeys;
 	delete[] m_currentKeys;
 }

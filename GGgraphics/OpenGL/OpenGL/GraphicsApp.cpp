@@ -105,8 +105,6 @@ bool GraphicsApp::startup()
 	2.5,0,0,1
 	};
 
-	Input::create();
-
 	ImGui_Init(m_window, true);
 
 	return true;
@@ -114,7 +112,6 @@ bool GraphicsApp::startup()
 
 void GraphicsApp::shutdown()
 {
-	Input::destroy();
 	aie::Gizmos::destroy();
 	ImGui_Shutdown();
 	destroyWindow();
@@ -211,7 +208,7 @@ void GraphicsApp::draw()
 		Gizmos::addLine(vec3(10, gizY, -10 + i), vec3(-10, 0, -10 + i), i == 10 ? white : black);
 	}
 
-	Gizmos::addSphere(*m_pointLights[0].getPosition(), 0.1, 32, 32, black);
+	Gizmos::addSphere(*m_pointLights[0].getPosition(), 0.1, 8, 8, black);
 	Gizmos::addAABBFilled(*m_dirLight.getDirection(), glm::vec3(0.1, 0.1, 0.1), black);
 
 	glEnable(GL_DEPTH_TEST);
@@ -225,6 +222,10 @@ void GraphicsApp::ImGui()
 	ImGui::Begin("Editor");
 
 	//Direction Light
+	ImGui::Text("Toggle Camera:");
+	ImGui::SameLine();
+	ImGui::Checkbox("(Left Ctrl)", &m_camera.mouseToggle);
+
 	ImGui::Text("Direction:");
 	ImGui::SameLine();
 	ImGui::SliderFloat("", &lightDir, 0.0f, glm::pi<float>() * 2);

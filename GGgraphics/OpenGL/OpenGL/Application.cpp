@@ -112,7 +112,6 @@ void Application::run(const char* title, int width, int height, bool fullscreen)
 
 	// cleanup
 	shutdown();
-	destroyWindow();
 }
 
 bool Application::hasWindowClosed() {
